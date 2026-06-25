@@ -1,8 +1,8 @@
-//CT8 
+//ct8
 #include "control_step.h"
 #include "sensor.h"
 const int pin_bao_mat_line = 45;
-const int pin_dung = 46;         
+const int pin_dung = 46;// chân returm hàng       
 const unsigned long time_bao_mat_line_lau = 10000; 
 const unsigned long time_cho_vach_2 = 8000;        
 const unsigned long time_dung_lay_hang = 20000;    
@@ -12,12 +12,14 @@ const int slowSpeed = 12000;
 const int startSpeed = 12000;
 const unsigned long thoi_gian_tang_toc = 9000;
 const unsigned long thoi_gian_giam_toc = 6000;
-const int BU_ZONE_123 = 100;   const float Kp_123 = 100.0;  const float Kd_123 = 100.0;
-const int BU_ZONE_456 = 400; const float Kp_456 = 150.0; const float Kd_456 = 600.0;
+
+const int BU_ZONE_123 = 00;   const float Kp_123 = 50.0;  const float Kd_123 = 60.0;
+const int BU_ZONE_456 = 400; const float Kp_456 = 150.0; const float Kd_456 = 500.0;
 const int BU_ZONE_789 = 500; const float Kp_789 = 200.0; const float Kd_789 = 700.0;
 const float Ki = 0.01;
-const float TIME_VAO_CUA = 200.0; 
-const float TIME_RA_CUA  = 300.0; 
+const float TIME_VAO_CUA = 250.0; 
+const float TIME_RA_CUA  = 350.0; 
+
 int raw_sensor = 0;
 int steering_error = 0;
 int last_valid_sensor = 0;
@@ -25,8 +27,6 @@ bool is_special_code = false;
 bool dang_gap_su_co = false;
 unsigned long t_bat_dau_su_co = 0;
 bool xe_dang_bi_khoa = false; 
-
-// --- THÊM: Biến lưu thời điểm bật công tắc nguồn ---
 unsigned long thoi_gian_cap_nguon = 0; 
 
 int trang_thai_tram = 0; 
@@ -83,7 +83,10 @@ void KhoiTaoThongSoDeBa()
 }
 
 bool KiemTraAnToan() {
-    bool co_vat_can = (digitalRead(cb1) == LOW); 
+    // ĐÃ FIX: Nếu đang dừng trạm (2: Xả hàng, 3: Lấy hàng) thì xe TỰ ĐỘNG BỎ QUA VẬT CẢN
+    bool dang_lam_nhiem_vu_tram = (trang_thai_tram == 2 || trang_thai_tram == 3);
+    
+    bool co_vat_can = (digitalRead(cb1) == LOW) && !dang_lam_nhiem_vu_tram; 
     bool mat_line = (raw_sensor == 13); 
 
     if (co_vat_can) 
@@ -126,15 +129,18 @@ bool KiemTraAnToan() {
         {
             dang_gap_su_co = false;
             digitalWrite(pin_bao_mat_line, HIGH); 
+            
             if (xe_dang_bi_khoa) {
                 KhoiTaoThongSoDeBa(); 
-                trang_thai_tram = 0; 
+                // ĐÃ FIX XÓA TRÍ NHỚ: KHÔNG reset trang_thai_tram = 0 ở đây nữa!
+                // Giúp xe nhớ lại trạng thái trước khi gặp vật cản (đang giảm tốc chẳng hạn)
                 xe_dang_bi_khoa = false;
             }
         }
         return false;
     }
 }
+
 void DocVaLocCamBien() {
     if (raw_sensor == 14 && trang_thai_tram == 0) {
         if (abs(last_valid_sensor) >= 5 || abs(smoothedError) > 4.5) 
@@ -154,12 +160,16 @@ void DocVaLocCamBien() {
         }
     }
 }
+
 bool XuLyTram() {
     unsigned long now = millis();
+    
+    // Bỏ qua trạm trong 9s đầu tiên khi mới bật nguồn
     if (now - thoi_gian_cap_nguon < thoi_gian_tang_toc) 
     {
         return false; 
     }
+    
     if (trang_thai_tram == 0) 
     {
         if (raw_sensor == 14) 
@@ -210,11 +220,13 @@ bool XuLyTram() {
     }
     return false; 
 }
+
 void QuyetDinhXuatXung() 
 {
     TinhToanBiendangTocDo();
     TinhToanVaXuatPID();
 }
+
 void TinhToanBiendangTocDo() 
 {
     if (dang_tang_toc) {
@@ -237,6 +249,7 @@ void TinhToanBiendangTocDo()
     }
     smoothBaseSpeed = (currentSpeedVal * 0.1) + (smoothBaseSpeed * 0.9);
 }
+
 void TinhToanVaXuatPID() {
     int baseSpeed = (int)smoothBaseSpeed;
     smoothedError = ((float)steering_error * 0.15) + (smoothedError * 0.85); 
