@@ -14,15 +14,13 @@ bool trang_thai_xung_trai = false;
 bool trang_thai_xung_phai = false;
 unsigned long prevMicrosTrai = 0;
 unsigned long prevMicrosPhai = 0;
-
 void step_dc(bool quay_trai_flag, bool quay_phai_flag, int CHIEU_QUAY_PHAI, int CHIEU_QUAY_TRAI, int toc_do_phai, int toc_do_trai)  
 {
   digitalWrite(DIR_TRAI, CHIEU_QUAY_TRAI);  
   digitalWrite(DIR_PHAI, CHIEU_QUAY_PHAI);  
-
   unsigned long currentMicros = micros(); 
 
-  // --- ĐỘNG CƠ TRÁI ---
+  //  ĐỘNG CƠ TRÁI
   if (quay_trai_flag) {
     if (currentMicros - prevMicrosTrai >= toc_do_trai) {
       prevMicrosTrai = currentMicros;
@@ -33,7 +31,7 @@ void step_dc(bool quay_trai_flag, bool quay_phai_flag, int CHIEU_QUAY_PHAI, int 
     digitalWrite(PUL_TRAI, LOW);
   }
 
-  // --- ĐỘNG CƠ PHẢI ---
+  // ĐỘNG CƠ PHẢI
   if (quay_phai_flag) {
     if (currentMicros - prevMicrosPhai >= toc_do_phai) {
       prevMicrosPhai = currentMicros;
