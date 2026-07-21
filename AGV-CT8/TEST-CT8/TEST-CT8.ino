@@ -3,11 +3,11 @@
 #include "sensor.h"
 const int pin_bao_mat_line = 45;
 const int pin_dung = 46;// chân returm hàng       
-const unsigned long time_bao_mat_line_lau = 10000; 
+const unsigned long time_bao_mat_line_lau = 300000; 
 const unsigned long time_cho_vach_2 = 8000;        
 const unsigned long time_dung_lay_hang = 20000;    
 const unsigned long thoi_gian_bo_qua_mat_line = 500; 
-const int speed = 1200;
+const int speed =1200;
 const int slowSpeed = 12000;
 const int startSpeed = 12000;
 const unsigned long thoi_gian_tang_toc = 9000;
@@ -53,8 +53,6 @@ void setup() {
     pinMode(cb1, INPUT_PULLUP); 
     
     digitalWrite(ENA_TRAI, LOW); digitalWrite(ENA_PHAI, LOW);
-    
-    // Đánh dấu thời điểm bật điện
     thoi_gian_cap_nguon = millis(); 
     KhoiTaoThongSoDeBa();
 }
@@ -130,11 +128,10 @@ bool KiemTraAnToan() {
             dang_gap_su_co = false;
             digitalWrite(pin_bao_mat_line, HIGH); 
             
-            if (xe_dang_bi_khoa) {
+            if (xe_dang_bi_khoa) 
+            {
                 KhoiTaoThongSoDeBa(); 
-                // ĐÃ FIX XÓA TRÍ NHỚ: KHÔNG reset trang_thai_tram = 0 ở đây nữa!
-                // Giúp xe nhớ lại trạng thái trước khi gặp vật cản (đang giảm tốc chẳng hạn)
-                xe_dang_bi_khoa = false;
+                  xe_dang_bi_khoa = false;
             }
         }
         return false;
@@ -252,7 +249,7 @@ void TinhToanBiendangTocDo()
 
 void TinhToanVaXuatPID() {
     int baseSpeed = (int)smoothBaseSpeed;
-    smoothedError = ((float)steering_error * 0.15) + (smoothedError * 0.85); 
+    smoothedError = ((float)steering_error * 0.1) + (smoothedError * 0.9); 
     float target_Kp, target_Kd;
     int target_offset_raw;
     int absError = abs(steering_error);
