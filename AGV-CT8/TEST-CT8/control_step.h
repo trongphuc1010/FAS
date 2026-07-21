@@ -32,7 +32,7 @@ void step_dc(bool quay_trai_flag, bool quay_phai_flag, int CHIEU_QUAY_PHAI, int 
     digitalWrite(PUL_TRAI, LOW);
   }
 
-  // --- ĐỘNG CƠ PHẢI ---
+  // ĐỘNG CƠ PHẢI 
   if (quay_phai_flag) {
     if (currentMicros - prevMicrosPhai >= toc_do_phai) {
       prevMicrosPhai = currentMicros;
