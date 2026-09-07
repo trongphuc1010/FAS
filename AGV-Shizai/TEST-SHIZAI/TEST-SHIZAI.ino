@@ -405,6 +405,6 @@ void TinhToanVaXuatPID()
     lastPidOutput = filteredPid;
     int PHUC_DEPTRAI = constrain(finalBaseSpeed - (int)filteredPid, speed, startSpeed);
     int PHUC_KDEP = constrain(finalBaseSpeed + (int)filteredPid, speed, startSpeed);
-    step_dc(true, true, HIGH, LOW, PHUC_KDEP, PHUC_DEPTRAI);
+    step_dc(true, true, HIGH, LOW, PHUC_KDEP, PHUC_DEPTRAI+25);
 }
 
