@@ -1,12 +1,14 @@
-//ct8
+//AGV CT8 08-09-2026
 #include "control_step.h"
 #include "sensor.h"
 const int pin_bao_mat_line = 45;
-const int pin_dung = 46;// chân returm hàng       
+const int pin_dung = 46;// chân returm hàng  
+const int time_sau_khi_quet_vach_14lan2 = 5000;     
 const unsigned long time_bao_mat_line_lau = 300000; 
 const unsigned long time_cho_vach_2 = 8000;        
 const unsigned long time_dung_lay_hang = 20000;    
 const unsigned long thoi_gian_bo_qua_mat_line = 500; 
+
 const int speed =1200;
 const int slowSpeed = 12000;
 const int startSpeed = 12000;
@@ -28,7 +30,7 @@ bool dang_gap_su_co = false;
 unsigned long t_bat_dau_su_co = 0;
 bool xe_dang_bi_khoa = false; 
 unsigned long thoi_gian_cap_nguon = 0; 
-
+unsigned long thoi_gian_roi_tram = 0;
 int trang_thai_tram = 0; 
 unsigned long t_gap_vach_1 = 0;
 unsigned long t_bat_dau_xa_hang = 0;
@@ -169,7 +171,8 @@ bool XuLyTram() {
     
     if (trang_thai_tram == 0) 
     {
-        if (raw_sensor == 14) 
+        // ĐÃ THÊM LỌC: Cách 4 giây từ lúc rời trạm mới cho phép nhận lại vạch 14
+        if (raw_sensor == 14 && (now - thoi_gian_roi_tram >= time_sau_khi_quet_vach_14lan2)) 
         {
             trang_thai_tram = 1;
             t_gap_vach_1 = now;
@@ -199,6 +202,9 @@ bool XuLyTram() {
             digitalWrite(pin_dung, HIGH); 
             trang_thai_tram = 4; 
             KhoiTaoThongSoDeBa();
+            
+            // Xả hàng xong, xe đề ba -> Kích hoạt bịt mắt 4s
+            thoi_gian_roi_tram = now; 
         }
         return true; 
     }
@@ -207,6 +213,7 @@ bool XuLyTram() {
         if (now - t_bat_dau_dung_20s >= time_dung_lay_hang) { 
             trang_thai_tram = 4; 
             KhoiTaoThongSoDeBa();
+            thoi_gian_roi_tram = now; 
         }
         return true; 
     }
@@ -217,7 +224,6 @@ bool XuLyTram() {
     }
     return false; 
 }
-
 void QuyetDinhXuatXung() 
 {
     TinhToanBiendangTocDo();
