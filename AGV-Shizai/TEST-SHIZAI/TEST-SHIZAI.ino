@@ -1,4 +1,4 @@
-// AGV SHIZAI -08/09/2026
+// AGV SHIZAI -16/09/2026
 #include "control_step.h"
 #include "sensor.h"
 const int pin_bao_mat_line = 45;
@@ -10,7 +10,7 @@ const unsigned long time_hu_line = 50;
 const unsigned long thoi_gian_tha_hang = 6000;
 const int time_tang_toc_case14_lan_1 = 8000;
 const unsigned long time_dung_lay_hang = 20000;
-const int speed = 1200;
+const int speed = 1230;
 const int slowSpeed = 12000;
 const int startSpeed = 12000;
 const int BU_ZONE_123 = 0;
